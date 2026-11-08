@@ -1,0 +1,6 @@
+{
+  "name": "Math & Graph Playground - Django Markdown",
+  "description": "Ustozlar va adminlar uchun Django TextField formatidagi matematik formulalar ($...$), Mafs va JSXGraph interaktiv grafiklarini tayyorlash hamda nusxalash maydoni.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
