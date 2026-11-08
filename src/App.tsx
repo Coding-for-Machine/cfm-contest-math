@@ -3,6 +3,7 @@ import { VisualMafsBuilder } from './components/VisualMafsBuilder';
 import { VisualJSXGraphBuilder } from './components/VisualJSXGraphBuilder';
 import { VisualFormulaBuilder } from './components/VisualFormulaBuilder';
 import { MarkdownMathRenderer } from './components/MarkdownMathRenderer';
+import { NextJsIntegrationGuide } from './components/NextJsIntegrationGuide';
 import {
   Copy,
   Check,
@@ -75,7 +76,7 @@ board.create('point', [() => circle.center.X(), () => circle.center.Y()], { name
 > **Xulosa:** Parabola $x$ o‘qini $(-1, 0)$ va $(3, 0)$ nuqtalarda, $y$ o‘qini esa $(0, -3)$ nuqtada kesib o‘tadi.
 `;
 
-type TabType = 'mafs_builder' | 'jsxgraph_builder' | 'formula_builder' | 'lesson_composer';
+type TabType = 'mafs_builder' | 'jsxgraph_builder' | 'formula_builder' | 'lesson_composer' | 'nextjs_guide';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('mafs_builder');
@@ -175,6 +176,19 @@ export default function App() {
             >
               <FileText className="w-3.5 h-3.5 text-amber-400" />
               <span>To‘liq Darslik Maydoni</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('nextjs_guide')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all whitespace-nowrap font-medium ${
+                activeTab === 'nextjs_guide'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Code2 className="w-3.5 h-3.5 text-blue-300" />
+              <span>Next.js Integratsiya (Kod)</span>
             </button>
           </nav>
 
@@ -441,6 +455,11 @@ export default function App() {
               )}
             </div>
           </div>
+        )}
+
+        {/* TAB 5: Next.js Integration Guide & Drop-in Code */}
+        {activeTab === 'nextjs_guide' && (
+          <NextJsIntegrationGuide />
         )}
       </main>
     </div>
