@@ -6,7 +6,6 @@ import { Check, Copy, HelpCircle, RotateCcw, Plus, Trash2 } from 'lucide-react';
 type Spec = Record<string, unknown>;
 type Mode = 'algorithm' | 'system' | 'sequence' | 'uml';
 
-const INITIAL_BUBBLE: Spec = traceAlgorithm('bubble', '5, 2, 8, 1', 8);
 const DIAGRAMS = presets as Record<string, Spec>;
 const PRESET_LIST: { label: string; key: string; group: string }[] = [
   { label: 'Bubble sort', key: 'bubble', group: 'Saralash' },
@@ -25,6 +24,7 @@ const PRESET_LIST: { label: string; key: string; group: string }[] = [
   { label: 'BFS graf', key: 'graph', group: 'Graf' },
   { label: 'LCS jadvali', key: 'grid', group: 'DP jadval' },
 ];
+const INITIAL_BUBBLE: Spec = traceAlgorithm('bubble', '5, 2, 8, 1', 8);
 const ALGO_HELP = '1. Andozani tanlang yoki JSON ni tahrirlang. 2. Ko‘rinishni tekshirib, blokni nusxalang. 3. Django admin darslik maydoniga qo‘ying.';
 const NODE_KINDS = ['client', 'user', 'server', 'loadbalancer', 'database', 'cache', 'queue', 'cloud', 'service'];
 
