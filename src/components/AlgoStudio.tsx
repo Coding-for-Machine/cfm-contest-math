@@ -6,13 +6,17 @@ import { Check, Copy, HelpCircle, RotateCcw, Plus, Trash2 } from 'lucide-react';
 type Spec = Record<string, unknown>;
 type Mode = 'algorithm' | 'system' | 'sequence' | 'uml';
 
-const INITIAL_BUBBLE: Spec = { type: 'array', title: 'Bubble sort', array: [5, 2, 8, 1], steps: [] };
+const INITIAL_BUBBLE: Spec = traceAlgorithm('bubble', '5, 2, 8, 1', 8);
 const DIAGRAMS = presets as Record<string, Spec>;
 const PRESET_LIST: { label: string; key: string; group: string }[] = [
   { label: 'Bubble sort', key: 'bubble', group: 'Saralash' },
   { label: 'Selection sort', key: 'selection', group: 'Saralash' },
   { label: 'Insertion sort', key: 'insertion', group: 'Saralash' },
+  { label: 'Merge sort', key: 'merge', group: 'Saralash' },
+  { label: 'Quick sort', key: 'quick', group: 'Saralash' },
   { label: 'Binary search', key: 'binary', group: 'Qidiruv' },
+  { label: 'DFS graf', key: 'dfs', group: 'Graf' },
+  { label: 'Dijkstra', key: 'dijkstra', group: 'Graf' },
   { label: 'Ikki ko‘rsatkich', key: 'two-pointers', group: 'Massiv usullari' },
   { label: 'Prefix sum', key: 'prefix', group: 'Massiv usullari' },
   { label: 'Stek / qavslar', key: 'stack', group: 'Stek/Navbat/Ro‘yxat' },
@@ -65,6 +69,95 @@ function traceAlgorithm(key: string, input: string, target: number): Spec {
     }
     steps.push({ sorted: arr.map((_, i) => i), note: 'Saralash yakunlandi.' });
     return { type: 'array', title: PRESET_LIST.find((p) => p.key === key)?.label, array: values, steps };
+  }
+  if (key === 'merge' || key === 'quick') {
+    if (arr.length > 40) throw new Error('Massivda 40 tadan ko‘p son bo‘lmasin.');
+    if (key === 'merge') {
+      const mergeRange = (left: number, right: number) => {
+        if (right - left <= 1) return;
+        const middle = Math.floor((left + right) / 2);
+        mergeRange(left, middle);
+        mergeRange(middle, right);
+        const merged: number[] = [];
+        let a = left;
+        let b = middle;
+        while (a < middle && b < right) {
+          steps.push({ compare: [a, b], note: `${arr[a]} va ${arr[b]} taqqoslanib, kichigi navbatdagi o‘ringa olinadi.` });
+          merged.push(arr[a] <= arr[b] ? arr[a++] : arr[b++]);
+        }
+        while (a < middle) merged.push(arr[a++]);
+        while (b < right) merged.push(arr[b++]);
+        merged.forEach((value, offset) => {
+          arr[left + offset] = value;
+          steps.push({ set: [[left + offset, value]], note: `${value} qiymati ${left + offset}-indeksga joylandi.` });
+        });
+      };
+      mergeRange(0, arr.length);
+    } else {
+      const partition = (low: number, high: number): number => {
+        const pivot = arr[high];
+        let boundary = low;
+        for (let index = low; index < high; index++) {
+          steps.push({ compare: [index, high], note: `${arr[index]} qiymati pivot ${pivot} bilan taqqoslanmoqda.` });
+          if (arr[index] <= pivot) {
+            if (boundary !== index) {
+              steps.push({ swap: [boundary, index], note: `${arr[boundary]} va ${arr[index]} o‘rin almashtiradi.` });
+              [arr[boundary], arr[index]] = [arr[index], arr[boundary]];
+            }
+            boundary++;
+          }
+        }
+        if (boundary !== high) {
+          steps.push({ swap: [boundary, high], note: `Pivot ${pivot} o‘zining yakuniy o‘rniga qo‘yildi.` });
+          [arr[boundary], arr[high]] = [arr[high], arr[boundary]];
+        }
+        return boundary;
+      };
+      const sortRange = (low: number, high: number) => {
+        if (low >= high) return;
+        const pivot = partition(low, high);
+        sortRange(low, pivot - 1);
+        sortRange(pivot + 1, high);
+      };
+      sortRange(0, arr.length - 1);
+    }
+    steps.push({ sorted: arr.map((_, index) => index), note: `${key === 'merge' ? 'Merge sort' : 'Quick sort'} yakunlandi.` });
+    return { type: 'array', title: key === 'merge' ? 'Merge sort' : 'Quick sort', array: values, steps };
+  }
+  if (key === 'dfs' || key === 'dijkstra') {
+    const nodes = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const edges = [[0, 1, 4], [0, 2, 2], [1, 2, 1], [1, 3, 5], [2, 3, 8], [2, 4, 10], [3, 4, 2], [3, 5, 6], [4, 5, 3]];
+    const positions = [[70, 180], [210, 80], [210, 280], [390, 80], [390, 280], [560, 180]];
+    if (key === 'dfs') {
+      const adjacency = nodes.map(() => [] as number[]);
+      edges.forEach(([from, to]) => { adjacency[from].push(to); adjacency[to].push(from); });
+      const visited = new Set<number>();
+      const visit = (node: number) => {
+        visited.add(node);
+        steps.push({ current: node, visited: [...visited].slice(0, -1), note: `${nodes[node]} tuguniga tashrif buyurildi.` });
+        adjacency[node].forEach((next) => { if (!visited.has(next)) { steps.push({ current: node, active: [[node, next]], note: `${nodes[node]} dan ${nodes[next]} qo‘shnisiga o‘tilmoqda.` }); visit(next); } });
+      };
+      visit(0);
+    } else {
+      const distances = nodes.map(() => Number.POSITIVE_INFINITY);
+      const visited = new Set<number>();
+      distances[0] = 0;
+      for (let count = 0; count < nodes.length; count++) {
+        let current = -1;
+        distances.forEach((distance, node) => { if (!visited.has(node) && (current < 0 || distance < distances[current])) current = node; });
+        if (current < 0 || !Number.isFinite(distances[current])) break;
+        visited.add(current);
+        steps.push({ current, visited: [...visited].slice(0, -1), note: `${nodes[current]} tuguni tanlandi: masofa ${distances[current]}.` });
+        edges.filter(([from, to]) => from === current || to === current).forEach(([from, to, weight]) => {
+          const next = from === current ? to : from;
+          if (!visited.has(next) && distances[current] + weight < distances[next]) {
+            distances[next] = distances[current] + weight;
+            steps.push({ current, visited: [...visited], active: [[current, next]], labels: { [next]: `${distances[next]}` }, note: `${nodes[next]} gacha yangi eng qisqa masofa: ${distances[next]}.` });
+          }
+        });
+      }
+    }
+    return { type: 'graph', title: key === 'dfs' ? 'Depth-first search (DFS)' : 'Dijkstra — eng qisqa yo‘l', nodes, edges, pos: positions, directed: false, steps };
   }
   if (key === 'binary') {
     const sorted = [...arr].sort((a, b) => a - b); let lo = 0; let hi = sorted.length - 1;
@@ -142,7 +235,7 @@ export function AlgoStudio({ onInsert, initialMode = 'algorithm' }: { onInsert: 
       <div className="mb-2 flex flex-wrap items-center gap-2"><span className="text-xs font-semibold text-slate-300">Algoritm andozalari:</span><label className="text-[11px] text-slate-400">Sonlar <input value={input} onChange={(e) => setInput(e.target.value)} onBlur={() => selectAlgo(activePreset)} className="ml-1 w-36 rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400" /></label><label className="text-[11px] text-slate-400">Maqsad <input type="number" value={target} onChange={(e) => setTarget(Number(e.target.value))} onBlur={() => activePreset === 'binary' && selectAlgo(activePreset)} className="ml-1 w-16 rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400" /></label></div>
       {['Saralash', 'Qidiruv', 'Massiv usullari', 'Stek/Navbat/Ro‘yxat', 'Daraxt', 'Graf', 'DP jadval'].map((group) => <div key={group} className="mb-2 flex flex-wrap items-center gap-1.5"><span className="w-32 text-[10px] text-slate-500">{group}</span>{PRESET_LIST.filter((item) => item.group === group).map((item) => <button key={item.key} type="button" onClick={() => selectAlgo(item.key)} className={`rounded-md border px-2 py-1 text-[11px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${activePreset === item.key ? 'border-indigo-500 bg-indigo-500/20 text-indigo-200' : 'border-slate-700 text-slate-300 hover:border-slate-500'}`}>{item.label}</button>)}</div>)}
     </div>}
-    {mode === 'system' && <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-3"><div className="flex flex-wrap gap-1.5"><span className="mr-2 text-xs text-slate-300">System Design andozalari:</span>{[['Load Balancer','system_load_balancer'],['Cache-aside (Redis)','system_cache_aside'],['Message Queue','system_message_queue'],['URL Shortener','system_url_shortener'],['CDN','system_cdn']].map(([label,key])=><button key={key} type="button" onClick={()=>selectDiagram(key)} className="rounded-lg border border-slate-700 px-2.5 py-1 text-[11px] text-indigo-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400">{label}</button>)}</div>
+    {mode === 'system' && <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-3"><div className="flex flex-wrap gap-1.5"><span className="mr-2 text-xs text-slate-300">System Design andozalari:</span>{[['Load Balancer','system_load_balancer'],['Cache-aside (Redis)','system_cache_aside'],['Message Queue','system_message_queue'],['URL Shortener','system_url_shortener'],['CDN','system_cdn'],['Real-time chat','system_chat'],['News Feed','system_feed']].map(([label,key])=><button key={key} type="button" onClick={()=>selectDiagram(key)} className="rounded-lg border border-slate-700 px-2.5 py-1 text-[11px] text-indigo-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400">{label}</button>)}</div>
       {parsed?.type === 'graph' && <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_1fr]"><div><div className="mb-2 flex flex-wrap gap-1">{NODE_KINDS.map((kind)=><button key={kind} type="button" onClick={()=>{ if(graphNodes.length>=30){setError('Grafda 30 tadan ko‘p tugun bo‘lmasligi kerak.');return;} const n=graphNodes.length; patchGraph({nodes:[...graphNodes,kind],kinds:[...graphKinds,kind],pos:[...graphPos,[70+(n%3)*220,80+Math.floor(n/3)*100]]});}} className="rounded-md border border-slate-700 px-2 py-1 text-[10px] text-slate-300">+ {kind}</button>)}</div><button type="button" onClick={()=>{setActivePreset('connect');setConnect(null);}} aria-pressed={activePreset==='connect'} className="mb-2 rounded-md border border-indigo-500/50 px-2 py-1 text-[10px] text-indigo-200">{connect===null?'Aloqa chizish':'Ikkinchi tugunni tanlang'}</button><div className="relative mx-auto aspect-[16/9] max-w-[640px] rounded-xl border border-slate-700 bg-slate-950" onPointerMove={(e)=>{if(dragging===null)return;const r=e.currentTarget.getBoundingClientRect();const next=graphPos.map((p,i)=>i===dragging?[Math.round((e.clientX-r.left)*640/r.width),Math.round((e.clientY-r.top)*360/r.height)]:p);patchGraph({pos:next});}} onPointerUp={()=>setDragging(null)} onPointerLeave={()=>setDragging(null)}>{graphEdges.map((edge,i)=>{const a=Number(edge[0]);const b=Number(edge[1]);const pa=graphPos[a]??[0,0];const pb=graphPos[b]??[0,0];return <svg key={i} className="pointer-events-none absolute inset-0 size-full" viewBox="0 0 640 360"><defs><marker id={`algo-arrow-${i}`} markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#818cf8"/></marker></defs><line x1={pa[0]} y1={pa[1]} x2={pb[0]} y2={pb[1]} stroke="#818cf8" strokeWidth="2" markerEnd={`url(#algo-arrow-${i})`}/><text x={(pa[0]+pb[0])/2} y={(pa[1]+pb[1])/2-7} fill="#cbd5e1" fontSize="10">{String(edge[2]??'')}</text></svg>})}{graphNodes.map((node,i)=>{const p=graphPos[i]??[40+i*100,180];return <button key={i} type="button" onPointerDown={(e)=>{e.currentTarget.setPointerCapture(e.pointerId);setDragging(i);}} onClick={()=>{if(connect!==null){if(connect!==i)patchGraph({edges:[...graphEdges,[connect,i,'so‘rov']]});setConnect(null);}else if(connect===null&&activePreset==='connect')setConnect(i);}} onDoubleClick={()=>{const name=window.prompt('Tugun nomi',String(node));if(name)patchGraph({nodes:graphNodes.map((n,j)=>j===i?name:n)});}} style={{left:`${(p[0]/640)*100}%`,top:`${(p[1]/360)*100}%`}} className={`absolute max-w-[110px] -translate-x-1/2 -translate-y-1/2 touch-none rounded-lg border border-indigo-400/50 bg-slate-800 px-2 py-1.5 text-[10px] text-white shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${dragging===i?'ring-2 ring-amber-300':''}`} aria-label={`${node}; surib joylashtiring`}>{String(node)}<span className="block text-[9px] text-indigo-300">{graphKinds[i]??'service'}</span></button>})}</div><div className="mt-2 flex flex-wrap gap-1.5"><button type="button" onClick={()=>{setActivePreset('connect');setConnect(null);}} className="rounded-lg border border-indigo-500/40 px-2.5 py-1 text-[11px] text-indigo-200">{activePreset==='connect'?'Tugunlarni ketma-ket tanlang':'Ulash rejimi'}</button>{graphEdges.map((edge,i)=><label key={i} className="flex items-center gap-1 text-[10px] text-slate-400">{String(graphNodes[Number(edge[0])]??'?')}→{String(graphNodes[Number(edge[1])]??'?')}<input aria-label="Qirra yozuvi" value={String(edge[2]??'')} onChange={(e)=>patchGraph({edges:graphEdges.map((v,j)=>j===i?[v[0],v[1],e.target.value]:v)})} className="w-24 rounded border border-slate-700 bg-slate-950 px-1.5 py-1 text-slate-100"/><button type="button" aria-label="Qirrani o‘chirish" onClick={()=>patchGraph({edges:graphEdges.filter((_,j)=>j!==i)})}><Trash2 className="size-3 text-rose-400"/></button></label>)}</div></div>
       <div className="max-h-[300px] overflow-auto rounded-lg border border-slate-800 p-2"><div className="mb-2 flex items-center justify-between text-xs font-semibold text-slate-300">Qadamlar <button type="button" onClick={()=>patchGraph({steps:[...graphSteps,{note:'Yangi qadam'}]})} className="text-indigo-300">+ Qadam</button></div>{graphSteps.map((step,i)=><div key={i} className="mb-2 grid grid-cols-[1fr_auto] gap-1.5"><input aria-label="Qadam izohi" value={String(step.note??'')} onChange={(e)=>patchGraph({steps:graphSteps.map((s,j)=>j===i?{...s,note:e.target.value}:s)})} className="min-w-0 rounded border border-slate-700 bg-slate-950 px-2 py-1 text-[11px] text-slate-100"/><button type="button" aria-label="Qadamni o‘chirish" onClick={()=>patchGraph({steps:graphSteps.filter((_,j)=>j!==i)})}><Trash2 className="size-3.5 text-rose-400"/></button></div>)}</div></div>}
     </div>}

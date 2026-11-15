@@ -1030,5 +1030,37 @@
         320
       ]
     ]
+  },
+  "system_chat": {
+    "type": "graph",
+    "title": "Real-time chat: xabar yetkazish oqimi",
+    "directed": true,
+    "nodes": ["Client A", "API Gateway", "WebSocket Gateway", "Message Queue", "Chat Service", "Database"],
+    "kinds": ["client", "loadbalancer", "service", "queue", "server", "database"],
+    "pos": [[65, 180], [190, 180], [320, 80], [455, 180], [320, 280], [575, 280]],
+    "edges": [[0, 1, "send"], [1, 2, "WebSocket"], [2, 3, "publish"], [3, 4, "consume"], [4, 5, "persist"], [4, 2, "deliver"]],
+    "steps": [
+      { "note": "Mijoz WebSocket ulanishini ochadi va sessiya gateway orqali aniqlanadi", "current": 0, "active": [[0, 1]] },
+      { "note": "Gateway ulanishni WebSocket serveriga yo‘naltiradi", "current": 1, "visited": [0], "active": [[1, 2]] },
+      { "note": "Yangi xabar navbatga qo‘yiladi — jo‘natuvchi boshqa servislarni kutmaydi", "current": 2, "visited": [0, 1], "active": [[2, 3]], "structure": { "name": "queue", "items": ["message-42"] } },
+      { "note": "Chat servisi xabarni o‘qib, doimiy bazaga yozadi", "current": 4, "visited": [0, 1, 2, 3], "active": [[4, 5]] },
+      { "note": "Xabar qabul qiluvchining faol WebSocket ulanishiga yetkaziladi", "current": 2, "visited": [0, 1, 3, 4, 5], "active": [[4, 2]] }
+    ]
+  },
+  "system_feed": {
+    "type": "graph",
+    "title": "News Feed: yozuvni kuzatuvchilarga tarqatish",
+    "directed": true,
+    "nodes": ["Client", "API", "Feed Service", "Message Queue", "Fan-out Worker", "Feed Cache", "Database"],
+    "kinds": ["client", "loadbalancer", "server", "queue", "service", "cache", "database"],
+    "pos": [[55, 180], [165, 180], [280, 180], [395, 80], [500, 180], [395, 280], [590, 280]],
+    "edges": [[0, 1, "POST"], [1, 2, "write"], [2, 6, "persist"], [2, 3, "publish"], [3, 4, "consume"], [4, 5, "fan-out"], [0, 5, "read feed"]],
+    "steps": [
+      { "note": "Foydalanuvchi yangi post yaratadi", "current": 0, "active": [[0, 1]] },
+      { "note": "Feed servisi postni bazaga saqlaydi", "current": 2, "visited": [0, 1], "active": [[2, 6]] },
+      { "note": "Post hodisasi navbatga yuboriladi", "current": 3, "visited": [0, 1, 2], "active": [[2, 3]], "structure": { "name": "queue", "items": ["post-created"] } },
+      { "note": "Fan-out worker kuzatuvchilar ro‘yxatini olib, feed keshini yangilaydi", "current": 4, "visited": [0, 1, 2, 3], "active": [[4, 5]], "labels": { "5": "yangilandi" } },
+      { "note": "Keyingi feed so‘rovi tayyor keshdan tez qaytadi", "current": 5, "visited": [0, 1, 2, 3, 4], "active": [[0, 5]], "labels": { "5": "HIT" } }
+    ]
   }
 }

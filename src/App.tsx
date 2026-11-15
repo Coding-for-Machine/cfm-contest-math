@@ -75,6 +75,29 @@ board.create('point', [() => circle.center.X(), () => circle.center.Y()], { name
 \`\`\`
 
 > **Xulosa:** Parabola $x$ o‘qini $(-1, 0)$ va $(3, 0)$ nuqtalarda, $y$ o‘qini esa $(0, -3)$ nuqtada kesib o‘tadi.
+
+## Algoritm: Bubble sort qanday ishlaydi?
+
+Ikki qo‘shni elementni taqqoslaymiz. Chapdagi element kattaroq bo‘lsa, ularning o‘rnini almashtiramiz. Quyidagi darslik bloki har bir taqqoslashni bosqichma-bosqich ko‘rsatadi:
+
+\`\`\`algo
+{
+  "type": "array",
+  "title": "Bubble sort — taqqoslash va almashtirish",
+  "array": [5, 2, 8, 1],
+  "steps": [
+    { "compare": [0, 1], "swap": [0, 1], "note": "5 va 2 taqqoslanadi: 5 katta, o‘rinlarini almashtiramiz." },
+    { "compare": [1, 2], "note": "5 va 8 tartibda — almashtirish shart emas." },
+    { "compare": [2, 3], "swap": [2, 3], "note": "8 va 1 taqqoslanadi: 8 katta, o‘rinlarini almashtiramiz." },
+    { "compare": [0, 1], "note": "2 va 5 taqqoslanadi: tartib to‘g‘ri, almashtirish shart emas." },
+    { "compare": [1, 2], "swap": [1, 2], "note": "5 va 1 taqqoslanadi: 5 katta, o‘rinlarini almashtiramiz." },
+    { "compare": [0, 1], "swap": [0, 1], "note": "2 va 1 taqqoslanadi: oxirgi almashtirish bajarildi." },
+    { "sorted": [0, 1, 2, 3], "note": "Massiv o‘sish tartibida saralandi." }
+  ]
+}
+\`\`\`
+
+Har qadamda elementlar holatini va izohni kuzating. Yakunda massiv **[1, 2, 5, 8]** ko‘rinishida saralanadi.
 `;
 
 type TabType = 'mafs_builder' | 'jsxgraph_builder' | 'formula_builder' | 'algo_studio' | 'system_design' | 'diagram_studio' | 'lesson_composer' | 'nextjs_guide';
