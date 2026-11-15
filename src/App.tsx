@@ -4,6 +4,8 @@ import { VisualJSXGraphBuilder } from './components/VisualJSXGraphBuilder';
 import { VisualFormulaBuilder } from './components/VisualFormulaBuilder';
 import { MarkdownMathRenderer } from './components/MarkdownMathRenderer';
 import { NextJsIntegrationGuide } from './components/NextJsIntegrationGuide';
+import { AlgorithmStudioTab } from './components/AlgorithmStudioTab';
+import { SystemDesignTab } from './components/SystemDesignTab';
 import {
   Copy,
   Check,
@@ -76,7 +78,7 @@ board.create('point', [() => circle.center.X(), () => circle.center.Y()], { name
 > **Xulosa:** Parabola $x$ o‘qini $(-1, 0)$ va $(3, 0)$ nuqtalarda, $y$ o‘qini esa $(0, -3)$ nuqtada kesib o‘tadi.
 `;
 
-type TabType = 'mafs_builder' | 'jsxgraph_builder' | 'formula_builder' | 'lesson_composer' | 'nextjs_guide';
+type TabType = 'mafs_builder' | 'jsxgraph_builder' | 'formula_builder' | 'lesson_composer' | 'nextjs_guide' | 'algorithm_studio' | 'system_design';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('mafs_builder');
@@ -106,7 +108,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
       {/* Top Header Navbar */}
       <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800 px-3 sm:px-6 py-2.5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 sm:gap-4">
           {/* Logo & Brand Zone */}
           <div className="flex items-center gap-3 shrink-0">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-teal-400 flex items-center justify-center font-mono font-bold text-white shadow-md shadow-indigo-500/20 text-sm">
@@ -125,7 +127,7 @@ export default function App() {
           </div>
 
           {/* Tab Navigation */}
-          <nav className="flex items-center gap-1 bg-slate-900 border border-slate-800 p-1 rounded-2xl overflow-x-auto text-xs">
+          <nav className="order-3 basis-full min-w-0 flex items-center gap-1 bg-slate-900 border border-slate-800 p-1 rounded-2xl overflow-x-auto text-xs sm:order-none sm:basis-auto sm:flex-1">
             <button
               type="button"
               onClick={() => setActiveTab('mafs_builder')}
@@ -190,6 +192,8 @@ export default function App() {
               <Code2 className="w-3.5 h-3.5 text-blue-300" />
               <span>Next.js Integratsiya (Kod)</span>
             </button>
+            <button type="button" onClick={() => setActiveTab('algorithm_studio')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all whitespace-nowrap font-medium ${activeTab === 'algorithm_studio' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}><Code2 className="h-3.5 w-3.5 text-indigo-300"/><span>Algoritm</span></button>
+            <button type="button" onClick={() => setActiveTab('system_design')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all whitespace-nowrap font-medium ${activeTab === 'system_design' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}><Layers className="h-3.5 w-3.5 text-teal-300"/><span>System Design</span></button>
           </nav>
 
           {/* Primary Action Button */}
@@ -461,6 +465,8 @@ export default function App() {
         {activeTab === 'nextjs_guide' && (
           <NextJsIntegrationGuide />
         )}
+        {activeTab === 'algorithm_studio' && <AlgorithmStudioTab onToast={showToast} />}
+        {activeTab === 'system_design' && <SystemDesignTab onToast={showToast} />}
       </main>
     </div>
   );
