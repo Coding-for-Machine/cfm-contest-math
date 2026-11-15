@@ -1,0 +1,1034 @@
+{
+  "system_load_balancer": {
+    "type": "graph",
+    "title": "Load Balancer: so'rovlarni taqsimlash",
+    "directed": true,
+    "nodes": [
+      "Client A",
+      "Client B",
+      "Load Balancer",
+      "Server 1",
+      "Server 2",
+      "Database"
+    ],
+    "kinds": [
+      "client",
+      "client",
+      "loadbalancer",
+      "server",
+      "server",
+      "database"
+    ],
+    "pos": [
+      [
+        70,
+        90
+      ],
+      [
+        70,
+        270
+      ],
+      [
+        265,
+        180
+      ],
+      [
+        455,
+        90
+      ],
+      [
+        455,
+        270
+      ],
+      [
+        585,
+        180
+      ]
+    ],
+    "edges": [
+      [
+        0,
+        2,
+        "so'rov"
+      ],
+      [
+        1,
+        2,
+        "so'rov"
+      ],
+      [
+        2,
+        3,
+        "round-robin"
+      ],
+      [
+        2,
+        4,
+        "round-robin"
+      ],
+      [
+        3,
+        5,
+        "query"
+      ],
+      [
+        4,
+        5,
+        "query"
+      ]
+    ],
+    "steps": [
+      {
+        "note": "Client A so'rov yuboradi",
+        "current": 0,
+        "active": [
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      {
+        "note": "Load Balancer so'rovni qabul qiladi",
+        "current": 2,
+        "visited": [
+          0
+        ]
+      },
+      {
+        "note": "Round-robin: so'rov Server 1 ga yo'naltiriladi",
+        "current": 2,
+        "visited": [
+          0
+        ],
+        "active": [
+          [
+            2,
+            3
+          ]
+        ],
+        "labels": {
+          "3": "1 ta so'rov",
+          "4": "0 ta so'rov"
+        }
+      },
+      {
+        "note": "Server 1 ma'lumotlar bazasiga murojaat qiladi",
+        "current": 3,
+        "visited": [
+          0,
+          2
+        ],
+        "active": [
+          [
+            3,
+            5
+          ]
+        ],
+        "labels": {
+          "3": "1 ta so'rov",
+          "4": "0 ta so'rov"
+        }
+      },
+      {
+        "note": "Database javob qaytaradi, Client A javob oladi",
+        "current": 5,
+        "visited": [
+          0,
+          2,
+          3
+        ]
+      },
+      {
+        "note": "Client B so'rov yuboradi",
+        "current": 1,
+        "active": [
+          [
+            1,
+            2
+          ]
+        ],
+        "labels": {
+          "3": "1 ta so'rov",
+          "4": "0 ta so'rov"
+        }
+      },
+      {
+        "note": "Navbat Server 2 ga keldi: yuklama teng taqsimlanadi",
+        "current": 2,
+        "visited": [
+          1
+        ],
+        "active": [
+          [
+            2,
+            4
+          ]
+        ],
+        "labels": {
+          "3": "1 ta so'rov",
+          "4": "1 ta so'rov"
+        }
+      },
+      {
+        "note": "Server 2 ham ma'lumotlar bazasiga murojaat qiladi",
+        "current": 4,
+        "visited": [
+          1,
+          2
+        ],
+        "active": [
+          [
+            4,
+            5
+          ]
+        ],
+        "labels": {
+          "3": "1 ta so'rov",
+          "4": "1 ta so'rov"
+        }
+      }
+    ]
+  },
+  "system_cache_aside": {
+    "type": "graph",
+    "title": "Cache-aside (Redis) strategiyasi",
+    "directed": true,
+    "nodes": [
+      "Client",
+      "App Server",
+      "Cache (Redis)",
+      "Database"
+    ],
+    "kinds": [
+      "client",
+      "server",
+      "cache",
+      "database"
+    ],
+    "pos": [
+      [
+        70,
+        180
+      ],
+      [
+        270,
+        180
+      ],
+      [
+        480,
+        80
+      ],
+      [
+        480,
+        280
+      ]
+    ],
+    "edges": [
+      [
+        0,
+        1,
+        "GET /user/1"
+      ],
+      [
+        1,
+        2,
+        "1. cache.get"
+      ],
+      [
+        1,
+        3,
+        "3. db.query"
+      ]
+    ],
+    "steps": [
+      {
+        "note": "Client foydalanuvchi ma'lumotini so'raydi",
+        "current": 0,
+        "active": [
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      {
+        "note": "1. App Server avval keshdan qidiradi",
+        "current": 1,
+        "visited": [
+          0
+        ],
+        "active": [
+          [
+            1,
+            2
+          ]
+        ]
+      },
+      {
+        "note": "Keshda yo'q (cache miss)",
+        "current": 2,
+        "visited": [
+          0,
+          1
+        ],
+        "labels": {
+          "2": "MISS"
+        }
+      },
+      {
+        "note": "3. App Server ma'lumotni bazadan oladi",
+        "current": 1,
+        "visited": [
+          0,
+          2
+        ],
+        "active": [
+          [
+            1,
+            3
+          ]
+        ],
+        "labels": {
+          "2": "MISS"
+        }
+      },
+      {
+        "note": "4. Natija keshga yoziladi (TTL bilan)",
+        "current": 1,
+        "visited": [
+          0,
+          3
+        ],
+        "active": [
+          [
+            1,
+            2
+          ]
+        ],
+        "labels": {
+          "2": "SET"
+        }
+      },
+      {
+        "note": "Keyingi so'rov keshdan tez qaytadi (cache hit)",
+        "current": 2,
+        "visited": [
+          0,
+          1
+        ],
+        "active": [
+          [
+            1,
+            2
+          ]
+        ],
+        "labels": {
+          "2": "HIT"
+        }
+      }
+    ]
+  },
+  "system_message_queue": {
+    "type": "graph",
+    "title": "Message Queue: producer va consumer",
+    "directed": true,
+    "nodes": [
+      "Producer",
+      "Queue",
+      "Consumer 1",
+      "Consumer 2",
+      "Database"
+    ],
+    "kinds": [
+      "server",
+      "queue",
+      "server",
+      "server",
+      "database"
+    ],
+    "pos": [
+      [
+        70,
+        180
+      ],
+      [
+        265,
+        180
+      ],
+      [
+        455,
+        80
+      ],
+      [
+        455,
+        280
+      ],
+      [
+        585,
+        180
+      ]
+    ],
+    "edges": [
+      [
+        0,
+        1,
+        "publish"
+      ],
+      [
+        1,
+        2,
+        "consume"
+      ],
+      [
+        1,
+        3,
+        "consume"
+      ],
+      [
+        2,
+        4,
+        "write"
+      ],
+      [
+        3,
+        4,
+        "write"
+      ]
+    ],
+    "steps": [
+      {
+        "note": "Producer birinchi xabarni navbatga yuboradi",
+        "current": 0,
+        "active": [
+          [
+            0,
+            1
+          ]
+        ],
+        "structure": {
+          "name": "queue",
+          "items": [
+            "m1"
+          ]
+        }
+      },
+      {
+        "note": "Yana ikkita xabar: producer kutib o'tirmaydi",
+        "current": 0,
+        "active": [
+          [
+            0,
+            1
+          ]
+        ],
+        "structure": {
+          "name": "queue",
+          "items": [
+            "m1",
+            "m2",
+            "m3"
+          ]
+        }
+      },
+      {
+        "note": "Consumer 1 m1 ni oladi",
+        "current": 2,
+        "visited": [
+          1
+        ],
+        "active": [
+          [
+            1,
+            2
+          ]
+        ],
+        "structure": {
+          "name": "queue",
+          "items": [
+            "m2",
+            "m3"
+          ]
+        }
+      },
+      {
+        "note": "Consumer 2 m2 ni parallel oladi",
+        "current": 3,
+        "visited": [
+          1,
+          2
+        ],
+        "active": [
+          [
+            1,
+            3
+          ]
+        ],
+        "structure": {
+          "name": "queue",
+          "items": [
+            "m3"
+          ]
+        }
+      },
+      {
+        "note": "Consumer'lar natijani bazaga yozadi",
+        "current": 4,
+        "visited": [
+          2,
+          3
+        ],
+        "active": [
+          [
+            2,
+            4
+          ],
+          [
+            3,
+            4
+          ]
+        ],
+        "structure": {
+          "name": "queue",
+          "items": [
+            "m3"
+          ]
+        }
+      }
+    ]
+  },
+  "system_url_shortener": {
+    "type": "graph",
+    "title": "URL Shortener: qisqa havola yaratish va ochish",
+    "directed": true,
+    "nodes": [
+      "Client",
+      "Load Balancer",
+      "API Server",
+      "Cache",
+      "Database"
+    ],
+    "kinds": [
+      "client",
+      "loadbalancer",
+      "server",
+      "cache",
+      "database"
+    ],
+    "pos": [
+      [
+        60,
+        180
+      ],
+      [
+        190,
+        180
+      ],
+      [
+        330,
+        180
+      ],
+      [
+        490,
+        80
+      ],
+      [
+        490,
+        280
+      ]
+    ],
+    "edges": [
+      [
+        0,
+        1,
+        "POST /shorten"
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        3,
+        "get"
+      ],
+      [
+        2,
+        4,
+        "insert"
+      ]
+    ],
+    "steps": [
+      {
+        "note": "Client uzun havolani yuboradi: POST /shorten",
+        "current": 0,
+        "active": [
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      {
+        "note": "API Server noyob qisqa kod yaratadi (masalan base62)",
+        "current": 2,
+        "visited": [
+          0,
+          1
+        ]
+      },
+      {
+        "note": "Juftlik (kod → uzun havola) bazaga yoziladi",
+        "current": 4,
+        "visited": [
+          0,
+          1,
+          2
+        ],
+        "active": [
+          [
+            2,
+            4
+          ]
+        ]
+      },
+      {
+        "note": "Keyinroq: GET /aB3x so'rovi keladi",
+        "current": 0,
+        "active": [
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      {
+        "note": "API Server avval keshni tekshiradi",
+        "current": 2,
+        "visited": [
+          0,
+          1
+        ],
+        "active": [
+          [
+            2,
+            3
+          ]
+        ],
+        "labels": {
+          "3": "HIT"
+        }
+      },
+      {
+        "note": "Kesh javob beradi: 301 redirect uzun havolaga",
+        "current": 3,
+        "visited": [
+          0,
+          1,
+          2
+        ]
+      }
+    ]
+  },
+  "system_cdn": {
+    "type": "graph",
+    "title": "CDN: statik fayllarni tezlashtirish",
+    "directed": true,
+    "nodes": [
+      "Foydalanuvchi",
+      "CDN (edge)",
+      "Origin server",
+      "Object Storage"
+    ],
+    "kinds": [
+      "user",
+      "cloud",
+      "server",
+      "database"
+    ],
+    "pos": [
+      [
+        70,
+        180
+      ],
+      [
+        255,
+        180
+      ],
+      [
+        440,
+        180
+      ],
+      [
+        585,
+        180
+      ]
+    ],
+    "edges": [
+      [
+        0,
+        1,
+        "GET /logo.png"
+      ],
+      [
+        1,
+        2,
+        "cache miss"
+      ],
+      [
+        2,
+        3,
+        "fetch"
+      ]
+    ],
+    "steps": [
+      {
+        "note": "Foydalanuvchi yaqin CDN tuguniga so'rov yuboradi",
+        "current": 0,
+        "active": [
+          [
+            0,
+            1
+          ]
+        ]
+      },
+      {
+        "note": "CDN'da fayl yo'q (cache miss)",
+        "current": 1,
+        "visited": [
+          0
+        ],
+        "labels": {
+          "1": "MISS"
+        }
+      },
+      {
+        "note": "CDN faylni origin serverdan oladi",
+        "current": 2,
+        "visited": [
+          0,
+          1
+        ],
+        "active": [
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      },
+      {
+        "note": "Fayl CDN'da saqlanadi va foydalanuvchiga qaytariladi",
+        "current": 1,
+        "visited": [
+          0,
+          2
+        ],
+        "labels": {
+          "1": "SAQLANDI"
+        }
+      },
+      {
+        "note": "Ikkinchi so'rov: fayl CDN'ning o'zidan keladi (hit), origin'ga bormaydi",
+        "current": 1,
+        "visited": [
+          0
+        ],
+        "active": [
+          [
+            0,
+            1
+          ]
+        ],
+        "labels": {
+          "1": "HIT"
+        }
+      }
+    ]
+  },
+  "sequence_mutex": {
+    "type": "sequence",
+    "title": "Mutex: ikki oqim va kritik qism",
+    "actors": [
+      "Thread 1",
+      "Mutex",
+      "Thread 2"
+    ],
+    "messages": [
+      {
+        "from": 0,
+        "to": 1,
+        "label": "lock()",
+        "note": "Thread 1 qulfni olishga urinadi"
+      },
+      {
+        "from": 1,
+        "to": 0,
+        "label": "acquired",
+        "kind": "reply",
+        "note": "Qulf bo'sh edi — Thread 1 oldi"
+      },
+      {
+        "from": 0,
+        "to": 0,
+        "kind": "note",
+        "label": "critical section",
+        "note": "Thread 1 umumiy resurs bilan ishlayapti"
+      },
+      {
+        "from": 2,
+        "to": 1,
+        "label": "lock()",
+        "note": "Thread 2 ham qulfni so'raydi"
+      },
+      {
+        "from": 2,
+        "to": 2,
+        "kind": "note",
+        "label": "blocked (waiting)",
+        "note": "Qulf band: Thread 2 kutadi"
+      },
+      {
+        "from": 0,
+        "to": 1,
+        "label": "unlock()",
+        "note": "Thread 1 ishini tugatib qulfni qo'yib yuboradi"
+      },
+      {
+        "from": 1,
+        "to": 2,
+        "label": "acquired",
+        "kind": "reply",
+        "note": "Endi qulf Thread 2 ga beriladi"
+      }
+    ]
+  },
+  "sequence_login": {
+    "type": "sequence",
+    "title": "Login oqimi (JWT)",
+    "actors": [
+      "Brauzer",
+      "API",
+      "Auth",
+      "Database"
+    ],
+    "messages": [
+      {
+        "from": 0,
+        "to": 1,
+        "label": "POST /login",
+        "note": "Foydalanuvchi login va parolni yuboradi"
+      },
+      {
+        "from": 1,
+        "to": 2,
+        "label": "verify(credentials)",
+        "note": "API tekshiruvni Auth xizmatiga topshiradi"
+      },
+      {
+        "from": 2,
+        "to": 3,
+        "label": "SELECT user",
+        "note": "Auth foydalanuvchini bazadan qidiradi"
+      },
+      {
+        "from": 3,
+        "to": 2,
+        "label": "user row",
+        "kind": "reply",
+        "note": "Baza foydalanuvchi yozuvini qaytaradi"
+      },
+      {
+        "from": 2,
+        "to": 1,
+        "label": "JWT token",
+        "kind": "reply",
+        "note": "Parol mos: Auth token yaratadi"
+      },
+      {
+        "from": 1,
+        "to": 0,
+        "label": "200 + cookie",
+        "kind": "reply",
+        "note": "Brauzer tokenni cookie sifatida oladi"
+      }
+    ]
+  },
+  "uml_adapter": {
+    "type": "uml",
+    "title": "Adapter pattern",
+    "classes": [
+      {
+        "name": "Client",
+        "methods": [
+          "+ run()"
+        ]
+      },
+      {
+        "name": "Target",
+        "stereotype": "interface",
+        "methods": [
+          "+ request()"
+        ]
+      },
+      {
+        "name": "Adapter",
+        "fields": [
+          "- adaptee: Adaptee"
+        ],
+        "methods": [
+          "+ request()"
+        ]
+      },
+      {
+        "name": "Adaptee",
+        "methods": [
+          "+ specificRequest()"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "from": 0,
+        "to": 1,
+        "kind": "assoc"
+      },
+      {
+        "from": 2,
+        "to": 1,
+        "kind": "implement"
+      },
+      {
+        "from": 2,
+        "to": 3,
+        "kind": "assoc",
+        "label": "adaptee"
+      }
+    ],
+    "pos": [
+      [
+        110,
+        70
+      ],
+      [
+        380,
+        70
+      ],
+      [
+        380,
+        250
+      ],
+      [
+        640,
+        250
+      ]
+    ],
+    "steps": [
+      {
+        "note": "Client faqat Target interfeysi bilan ishlaydi",
+        "show": [
+          0,
+          1
+        ]
+      },
+      {
+        "note": "Adaptee boshqa interfeysga ega — Client uni to'g'ridan-to'g'ri chaqira olmaydi",
+        "show": [
+          0,
+          1,
+          3
+        ],
+        "highlight": [
+          3
+        ]
+      },
+      {
+        "note": "Adapter Target ni amalga oshiradi va ichida Adaptee ni chaqiradi",
+        "show": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "highlight": [
+          2
+        ]
+      }
+    ]
+  },
+  "uml_observer": {
+    "type": "uml",
+    "title": "Observer pattern",
+    "classes": [
+      {
+        "name": "Subject",
+        "fields": [
+          "- observers: List<Observer>"
+        ],
+        "methods": [
+          "+ attach(o)",
+          "+ detach(o)",
+          "+ notify()"
+        ]
+      },
+      {
+        "name": "Observer",
+        "stereotype": "interface",
+        "methods": [
+          "+ update()"
+        ]
+      },
+      {
+        "name": "EmailObserver",
+        "methods": [
+          "+ update()"
+        ]
+      },
+      {
+        "name": "SmsObserver",
+        "methods": [
+          "+ update()"
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "from": 0,
+        "to": 1,
+        "kind": "aggregate",
+        "label": "observers"
+      },
+      {
+        "from": 2,
+        "to": 1,
+        "kind": "implement"
+      },
+      {
+        "from": 3,
+        "to": 1,
+        "kind": "implement"
+      }
+    ],
+    "pos": [
+      [
+        120,
+        130
+      ],
+      [
+        420,
+        130
+      ],
+      [
+        300,
+        320
+      ],
+      [
+        540,
+        320
+      ]
+    ]
+  }
+}
