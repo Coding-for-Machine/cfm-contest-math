@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import MathGraph from './MathGraph';
 import JSXGraphPlot from './JSXGraphPlot';
+import AlgoVisualizer from './AlgoVisualizer';
 import { MathView } from './MathView';
 import { Copy, Check } from 'lucide-react';
 
@@ -9,7 +10,7 @@ interface MarkdownMathRendererProps {
 }
 
 interface BlockItem {
-  type: 'mafs' | 'jsxgraph' | 'code' | 'math-block' | 'markdown';
+  type: 'mafs' | 'jsxgraph' | 'algo' | 'code' | 'math-block' | 'markdown';
   content: string;
   lang?: string;
 }
@@ -50,6 +51,8 @@ export const MarkdownMathRenderer: React.FC<MarkdownMathRendererProps> = ({ cont
             list.push({ type: 'mafs', content: fenceContent.join('\n') });
           } else if (fenceLang === 'jsxgraph') {
             list.push({ type: 'jsxgraph', content: fenceContent.join('\n') });
+          } else if (fenceLang === 'algo') {
+            list.push({ type: 'algo', content: fenceContent.join('\n') });
           } else {
             list.push({ type: 'code', content: fenceContent.join('\n'), lang: fenceLang });
           }
@@ -190,6 +193,9 @@ export const MarkdownMathRenderer: React.FC<MarkdownMathRendererProps> = ({ cont
         }
         if (block.type === 'jsxgraph') {
           return <JSXGraphPlot key={idx} source={block.content} />;
+        }
+        if (block.type === 'algo') {
+          return <div key={idx} className="my-5 overflow-hidden rounded-2xl border border-slate-700 bg-white"><AlgoVisualizer source={block.content} /></div>;
         }
         if (block.type === 'math-block') {
           return (

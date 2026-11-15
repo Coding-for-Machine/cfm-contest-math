@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import AlgoVisualizerSource from './AlgoVisualizer?raw';
 import { Copy, Check, Terminal, FileCode, CheckCircle2, Sparkles, Layers } from 'lucide-react';
 
 export function NextJsIntegrationGuide() {
@@ -622,6 +623,15 @@ import "mafs/font.css";
 
   return (
     <div className="flex flex-col gap-5">
+      <section className="rounded-2xl border border-cyan-500/20 bg-slate-900 p-4 shadow-xl">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <div><h2 className="text-sm font-bold text-white">Algoritm vizualizatsiya</h2><p className="text-xs text-slate-400">Production uchun AlgoVisualizer.tsx va MarkdownRenderer ulanishi.</p></div>
+          <button type="button" onClick={() => copyCode('algoVisualizer', AlgoVisualizerSource)} className="flex items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1.5 text-xs text-indigo-200">{copied === 'algoVisualizer' ? <Check className="size-3.5"/> : <Copy className="size-3.5"/>}{copied === 'algoVisualizer' ? 'Nusxalandi' : 'Faylni nusxalash'}</button>
+        </div>
+        <pre className="max-h-64 overflow-auto rounded-xl bg-slate-950 p-3 font-mono text-[10px] leading-4 text-cyan-100"><code>{AlgoVisualizerSource}</code></pre>
+        <div className="mt-3 flex items-center justify-between gap-2"><span className="text-xs text-slate-300">MarkdownRenderer uchun kod</span><button type="button" onClick={() => copyCode('algoSnippet', 'const AlgoVisualizer = dynamic(() => import("./math/AlgoVisualizer"), { ssr: false });\\n// CodeBlock ichida:\\nif (language === "algo") return <AlgoVisualizer source={rawContent} />;\\n// InlineCode ichida: language === "algo" bo\'lsa null qaytaring.')} className="text-xs text-indigo-300">{copied === 'algoSnippet' ? 'Nusxalandi' : 'Nusxalash'}</button></div>
+        <pre className="mt-2 overflow-x-auto rounded-xl bg-slate-950 p-3 font-mono text-[11px] leading-5 text-indigo-200">{'const AlgoVisualizer = dynamic(() => import("./math/AlgoVisualizer"), { ssr: false });\\n// CodeBlock ichida:\\nif (language === "algo") return <AlgoVisualizer source={rawContent} />;\\n// InlineCode ichida: language === "algo" bo‘lsa null qaytaring.'}</pre>
+      </section>
       {/* Overview Card */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
         <div className="flex items-start gap-3">
@@ -633,7 +643,7 @@ import "mafs/font.css";
               Next.js Loyihangizdagi <code className="text-indigo-300 font-mono text-xs">MarkdownRenderer.tsx</code> Integratsiyasi
             </h3>
             <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              Siz yuborgan faylga <strong>Mafs (```mafs)</strong> va <strong>JSXGraph (```jsxgraph)</strong> ni
+              Siz yuborgan faylga <strong>Mafs (```mafs)</strong>, <strong>JSXGraph (```jsxgraph)</strong> va <strong>Algoritm (```algo)</strong> ni
               qo‘shish uchun <code>CodeBlock</code> qismiga atigi <strong>6 qator</strong> kod qo‘shiladi.
               SSR (Server-Side Rendering) xatolarini oldini olish uchun komponentlar <code>next/dynamic</code> bilan yuklanadi.
             </p>

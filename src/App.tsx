@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { VisualMafsBuilder } from './components/VisualMafsBuilder';
 import { VisualJSXGraphBuilder } from './components/VisualJSXGraphBuilder';
 import { VisualFormulaBuilder } from './components/VisualFormulaBuilder';
 import { MarkdownMathRenderer } from './components/MarkdownMathRenderer';
+import { AlgoStudio } from './components/AlgoStudio';
 import { NextJsIntegrationGuide } from './components/NextJsIntegrationGuide';
 import {
   Copy,
@@ -74,12 +75,40 @@ board.create('point', [() => circle.center.X(), () => circle.center.Y()], { name
 \`\`\`
 
 > **Xulosa:** Parabola $x$ o‘qini $(-1, 0)$ va $(3, 0)$ nuqtalarda, $y$ o‘qini esa $(0, -3)$ nuqtada kesib o‘tadi.
+
+## Algoritm: Bubble sort qanday ishlaydi?
+
+Ikki qo‘shni elementni taqqoslaymiz. Chapdagi element kattaroq bo‘lsa, ularning o‘rnini almashtiramiz. Quyidagi darslik bloki har bir taqqoslashni bosqichma-bosqich ko‘rsatadi:
+
+\`\`\`algo
+{
+  "type": "array",
+  "title": "Bubble sort — taqqoslash va almashtirish",
+  "array": [5, 2, 8, 1],
+  "steps": [
+    { "compare": [0, 1], "swap": [0, 1], "note": "5 va 2 taqqoslanadi: 5 katta, o‘rinlarini almashtiramiz." },
+    { "compare": [1, 2], "note": "5 va 8 tartibda — almashtirish shart emas." },
+    { "compare": [2, 3], "swap": [2, 3], "note": "8 va 1 taqqoslanadi: 8 katta, o‘rinlarini almashtiramiz." },
+    { "compare": [0, 1], "note": "2 va 5 taqqoslanadi: tartib to‘g‘ri, almashtirish shart emas." },
+    { "compare": [1, 2], "swap": [1, 2], "note": "5 va 1 taqqoslanadi: 5 katta, o‘rinlarini almashtiramiz." },
+    { "compare": [0, 1], "swap": [0, 1], "note": "2 va 1 taqqoslanadi: oxirgi almashtirish bajarildi." },
+    { "sorted": [0, 1, 2, 3], "note": "Massiv o‘sish tartibida saralandi." }
+  ]
+}
+\`\`\`
+
+Har qadamda elementlar holatini va izohni kuzating. Yakunda massiv **[1, 2, 5, 8]** ko‘rinishida saralanadi.
 `;
 
-type TabType = 'mafs_builder' | 'jsxgraph_builder' | 'formula_builder' | 'lesson_composer' | 'nextjs_guide';
+type TabType = 'mafs_builder' | 'jsxgraph_builder' | 'formula_builder' | 'algo_studio' | 'system_design' | 'diagram_studio' | 'lesson_composer' | 'nextjs_guide';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('mafs_builder');
+  const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    navRef.current?.querySelector('[data-active="true"]')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+  }, [activeTab]);
   const [markdownLesson, setMarkdownLesson] = useState<string>(INITIAL_LESSON);
   const [viewMode, setViewMode] = useState<'split' | 'editor' | 'preview'>('split');
   const [copiedAll, setCopiedAll] = useState(false);
@@ -125,10 +154,14 @@ export default function App() {
           </div>
 
           {/* Tab Navigation */}
-          <nav className="flex items-center gap-1 bg-slate-900 border border-slate-800 p-1 rounded-2xl overflow-x-auto text-xs">
+          <div className="flex min-w-0 items-center gap-1">
+          <button type="button" aria-label="Tablarni chapga surish" onClick={() => navRef.current?.scrollBy({ left: -220, behavior: 'smooth' })} className="shrink-0 rounded-lg border border-slate-800 px-2 py-2 text-slate-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400">‹</button>
+          <nav ref={navRef} aria-label="Asosiy bo‘limlar" className="flex min-w-0 items-center gap-1 bg-slate-900 border border-slate-800 p-1 rounded-2xl overflow-x-auto text-xs">
             <button
               type="button"
               onClick={() => setActiveTab('mafs_builder')}
+              data-active={activeTab === 'mafs_builder'}
+              aria-current={activeTab === 'mafs_builder' ? 'page' : undefined}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all whitespace-nowrap font-medium ${
                 activeTab === 'mafs_builder'
                   ? 'bg-indigo-600 text-white shadow-sm'
@@ -142,6 +175,8 @@ export default function App() {
             <button
               type="button"
               onClick={() => setActiveTab('jsxgraph_builder')}
+              data-active={activeTab === 'jsxgraph_builder'}
+              aria-current={activeTab === 'jsxgraph_builder' ? 'page' : undefined}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all whitespace-nowrap font-medium ${
                 activeTab === 'jsxgraph_builder'
                   ? 'bg-teal-600 text-white shadow-sm'
@@ -155,6 +190,8 @@ export default function App() {
             <button
               type="button"
               onClick={() => setActiveTab('formula_builder')}
+              data-active={activeTab === 'formula_builder'}
+              aria-current={activeTab === 'formula_builder' ? 'page' : undefined}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all whitespace-nowrap font-medium ${
                 activeTab === 'formula_builder'
                   ? 'bg-purple-600 text-white shadow-sm'
@@ -167,7 +204,44 @@ export default function App() {
 
             <button
               type="button"
+              onClick={() => setActiveTab('algo_studio')}
+              data-active={activeTab === 'algo_studio'}
+              aria-current={activeTab === 'algo_studio' ? 'page' : undefined}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all whitespace-nowrap font-medium ${
+                activeTab === 'algo_studio' ? 'bg-cyan-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5 text-cyan-300" />
+              <span>Algoritm</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('system_design')}
+              data-active={activeTab === 'system_design'}
+              aria-current={activeTab === 'system_design' ? 'page' : undefined}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all whitespace-nowrap font-medium ${activeTab === 'system_design' ? 'bg-cyan-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
+            >
+              <Layers className="w-3.5 h-3.5 text-cyan-300" />
+              <span>System Design</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('diagram_studio')}
+              data-active={activeTab === 'diagram_studio'}
+              aria-current={activeTab === 'diagram_studio' ? 'page' : undefined}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all whitespace-nowrap font-medium ${activeTab === 'diagram_studio' ? 'bg-cyan-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
+            >
+              <Layers className="w-3.5 h-3.5 text-cyan-300" />
+              <span>Diagramma</span>
+            </button>
+
+            <button
+              type="button"
               onClick={() => setActiveTab('lesson_composer')}
+              data-active={activeTab === 'lesson_composer'}
+              aria-current={activeTab === 'lesson_composer' ? 'page' : undefined}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all whitespace-nowrap font-medium ${
                 activeTab === 'lesson_composer'
                   ? 'bg-slate-800 text-white shadow-sm border border-slate-700'
@@ -181,6 +255,8 @@ export default function App() {
             <button
               type="button"
               onClick={() => setActiveTab('nextjs_guide')}
+              data-active={activeTab === 'nextjs_guide'}
+              aria-current={activeTab === 'nextjs_guide' ? 'page' : undefined}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all whitespace-nowrap font-medium ${
                 activeTab === 'nextjs_guide'
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm'
@@ -191,6 +267,8 @@ export default function App() {
               <span>Next.js Integratsiya (Kod)</span>
             </button>
           </nav>
+          <button type="button" aria-label="Tablarni o‘ngga surish" onClick={() => navRef.current?.scrollBy({ left: 220, behavior: 'smooth' })} className="shrink-0 rounded-lg border border-slate-800 px-2 py-2 text-slate-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400">›</button>
+          </div>
 
           {/* Primary Action Button */}
           <div className="flex items-center gap-2 shrink-0">
@@ -281,6 +359,8 @@ export default function App() {
             <VisualFormulaBuilder onInsertToLesson={handleInsertSnippetToLesson} />
           </div>
         )}
+
+        {['algo_studio', 'system_design', 'diagram_studio'].includes(activeTab) && <AlgoStudio initialMode={activeTab === 'system_design' ? 'system' : activeTab === 'diagram_studio' ? 'sequence' : 'algorithm'} onInsert={(block) => { setMarkdownLesson((current) => `${current.trimEnd()}\n\n${block.trim()}\n\n`); showToast('Vizualizatsiya bloki darslikka qo‘shildi.'); }} />}
 
         {/* TAB 4: Complete Lesson Editor & Student Reader View */}
         {activeTab === 'lesson_composer' && (
